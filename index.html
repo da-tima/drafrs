@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ЛК Врача — КогниТест</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #3B6AEA;
+    --primary-light: #EEF2FF;
+    --primary-dark: #2952CC;
+    --accent: #10B981;
+    --accent-light: #ECFDF5;
+    --warning: #F59E0B;
+    --warning-light: #FFFBEB;
+    --danger: #EF4444;
+    --danger-light: #FEF2F2;
+    --text: #111827;
+    --text-secondary: #6B7280;
+    --border: #E5E7EB;
+    --bg: #F9FAFB;
+    --white: #FFFFFF;
+    --sidebar-w: 220px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; font-size: 14px; }
+
+  /* SIDEBAR */
+  .sidebar { width: var(--sidebar-w); background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+  .logo-mark { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 34px; height: 34px; background: var(--primary); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { fill: white; width: 18px; height: 18px; }
+  .logo-text { font-size: 15px; font-weight: 700; color: var(--text); }
+  .logo-sub { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+  .sidebar-nav { padding: 12px 10px; flex: 1; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.6px; padding: 8px 10px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 13.5px; font-weight: 500; transition: all 0.15s; margin-bottom: 2px; }
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active { background: var(--primary-light); color: var(--primary); }
+  .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+  .sidebar-footer { padding: 12px 10px; border-top: 1px solid var(--border); }
+  .doctor-card { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+  .doctor-card:hover { background: var(--bg); }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .doctor-info { flex: 1; min-width: 0; }
+  .doctor-name { font-size: 12.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doctor-spec { font-size: 11px; color: var(--text-secondary); }
+
+  /* MAIN */
+  .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 28px; height: 56px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .topbar-title { font-size: 16px; font-weight: 700; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-outline { background: white; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { background: var(--bg); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .icon-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .icon-btn:hover { background: var(--bg); }
+  .icon-btn svg { width: 17px; height: 17px; color: var(--text-secondary); }
+  .content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+  /* SCREEN MANAGEMENT */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* DASHBOARD */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); }
+  .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .stat-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+  .stat-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .stat-icon svg { width: 16px; height: 16px; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-delta { font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; }
+  .stat-delta span { font-weight: 600; }
+  .stat-delta .up { color: var(--accent); }
+  .stat-delta .down { color: var(--danger); }
+
+  .section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+  .section-title a { font-size: 12px; font-weight: 500; color: var(--primary); cursor: pointer; text-decoration: none; }
+
+  .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+
+  /* Domain bars */
+  .domain-list { display: flex; flex-direction: column; gap: 10px; }
+  .domain-item { }
+  .domain-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .domain-name { font-size: 12.5px; color: var(--text); font-weight: 500; }
+  .domain-score { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+  .domain-bar-bg { height: 6px; background: var(--border); border-radius: 4px; }
+  .domain-bar { height: 6px; border-radius: 4px; transition: width 0.6s; }
+  .bar-green { background: var(--accent); }
+  .bar-blue { background: var(--primary); }
+  .bar-yellow { background: var(--warning); }
+  .bar-red { background: var(--danger); }
+
+  /* Donut */
+  .donut-wrapper { display: flex; align-items: center; gap: 20px; }
+  .donut-svg { flex-shrink: 0; }
+  .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { font-size: 12px; color: var(--text-secondary); }
+  .legend-val { font-size: 12px; font-weight: 600; color: var(--text); margin-left: auto; }
+
+  /* Recent patients */
+  .patient-table { width: 100%; border-collapse: collapse; }
+  .patient-table th { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  .patient-table td { padding: 10px 10px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .patient-table tr:last-child td { border-bottom: none; }
+  .patient-table tr:hover td { background: var(--bg); cursor: pointer; }
+  .patient-name { font-weight: 500; color: var(--text); }
+  .patient-id { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; gap: 4px; }
+  .badge-green { background: var(--accent-light); color: #059669; }
+  .badge-yellow { background: var(--warning-light); color: #D97706; }
+  .badge-red { background: var(--danger-light); color: #DC2626; }
+  .badge-blue { background: var(--primary-light); color: var(--primary); }
+  .badge-gray { background: var(--bg); color: var(--text-secondary); border: 1px solid var(--border); }
+
+  .trend-line { display: flex; align-items: flex-end; gap: 3px; height: 28px; }
+  .trend-bar { width: 8px; border-radius: 3px 3px 0 0; background: var(--primary-light); }
+  .trend-bar.active { background: var(--primary); }
+
+  /* PATIENTS */
+  .filters-bar { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; box-shadow: var(--shadow); }
+  .search-input { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; flex: 1; min-width: 180px; }
+  .search-input input { border: none; background: transparent; outline: none; font-size: 13px; color: var(--text); width: 100%; }
+  .search-input input::placeholder { color: var(--text-secondary); }
+  .search-input svg { color: var(--text-secondary); width: 15px; height: 15px; flex-shrink: 0; }
+  .filter-select { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 13px; color: var(--text); outline: none; cursor: pointer; }
+  .filters-count { font-size: 12px; color: var(--text-secondary); margin-left: auto; }
+
+  .full-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .full-table th { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; padding: 10px 14px; text-align: left; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .full-table td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .full-table tr:last-child td { border-bottom: none; }
+  .full-table tr:hover td { background: #FAFBFF; cursor: pointer; }
+  .deviation-tag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 500; background: var(--danger-light); color: #DC2626; margin-right: 3px; }
+  .repeat-icon { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--primary); font-weight: 500; }
+
+  /* RESULTS */
+  .results-header { display: flex; gap: 14px; margin-bottom: 20px; align-items: flex-start; }
+  .patient-info-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; flex: 1; box-shadow: var(--shadow); }
+  .pi-name { font-size: 17px; font-weight: 700; color: var(--text); }
+  .pi-meta { display: flex; gap: 16px; margin-top: 6px; flex-wrap: wrap; }
+  .pi-meta-item { font-size: 12.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+  .pi-meta-item strong { color: var(--text); font-weight: 600; }
+
+  .score-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; min-width: 160px; box-shadow: var(--shadow); text-align: center; }
+  .score-big { font-size: 48px; font-weight: 800; line-height: 1; }
+  .score-max { font-size: 16px; color: var(--text-secondary); font-weight: 400; }
+  .score-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .domain-detail-list { display: flex; flex-direction: column; gap: 12px; }
+  .domain-detail { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); }
+  .domain-detail-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .domain-detail-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .domain-detail-score { font-size: 18px; font-weight: 700; }
+  .domain-detail-bar-bg { height: 8px; background: var(--border); border-radius: 4px; }
+  .domain-detail-bar { height: 8px; border-radius: 4px; }
+
+  .interp-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 16px; }
+  .interp-title { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .interp-title svg { color: var(--primary); width: 17px; height: 17px; }
+  .interp-text { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+  .rec-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .rec-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .rec-list li::before { content: "→"; color: var(--primary); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  .strengths-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .strength-card { padding: 12px 14px; border-radius: 10px; }
+  .strength-card.good { background: var(--accent-light); border: 1px solid #A7F3D0; }
+  .strength-card.bad { background: var(--danger-light); border: 1px solid #FECACA; }
+  .strength-card-title { font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+  .strength-card.good .strength-card-title { color: #059669; }
+  .strength-card.bad .strength-card-title { color: #DC2626; }
+  .strength-tag { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; margin: 2px; }
+  .strength-card.good .strength-tag { background: white; color: #059669; border: 1px solid #A7F3D0; }
+  .strength-card.bad .strength-tag { background: white; color: #DC2626; border: 1px solid #FECACA; }
+
+  /* compare toggle */
+  .compare-toggle { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--primary-light); border-radius: 8px; border: 1px solid #C7D7FA; font-size: 12.5px; font-weight: 500; color: var(--primary); cursor: pointer; }
+  .compare-toggle input[type=checkbox] { accent-color: var(--primary); }
+  .compare-bar { display: flex; gap: 4px; align-items: flex-end; height: 40px; }
+  .compare-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .compare-col .bar1 { width: 16px; border-radius: 3px 3px 0 0; background: var(--primary); }
+  .compare-col .bar2 { width: 16px; border-radius: 3px 3px 0 0; background: #CBD5E1; }
+
+  /* SUPPORT */
+  .support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .support-action-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: 14px; cursor: pointer; transition: all 0.15s; }
+  .support-action-card:hover { border-color: var(--primary); background: var(--primary-light); }
+  .support-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .support-icon svg { width: 20px; height: 20px; }
+  .support-action-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .support-action-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+
+  .faq-list { display: flex; flex-direction: column; gap: 2px; }
+  .faq-item { background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .faq-q { padding: 13px 16px; font-size: 13.5px; font-weight: 500; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+  .faq-q svg { width: 16px; height: 16px; color: var(--text-secondary); transition: transform 0.2s; flex-shrink: 0; }
+  .faq-item.open .faq-q svg { transform: rotate(180deg); }
+  .faq-a { padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height 0.3s, padding 0.2s; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .faq-item.open .faq-a { max-height: 200px; padding: 0 16px 14px; }
+
+  .rating-widget { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
+  .stars { display: flex; gap: 6px; margin: 10px 0; }
+  .star { font-size: 28px; cursor: pointer; filter: grayscale(1); transition: filter 0.1s; }
+  .star:hover, .star.active { filter: none; }
+  .rating-label { font-size: 12.5px; color: var(--text-secondary); }
+
+  /* Floating support button */
+  .float-support { position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(59,106,234,0.4); cursor: pointer; transition: transform 0.2s; z-index: 100; }
+  .float-support:hover { transform: scale(1.08); }
+  .float-support svg { width: 22px; height: 22px; fill: white; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 2px; background: var(--bg); padding: 3px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 18px; width: fit-content; }
+  .tab { padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text-secondary); transition: all 0.15s; }
+  .tab.active { background: var(--white); color: var(--primary); box-shadow: var(--shadow); }
+
+  /* Progress circle */
+  .progress-circle { position: relative; width: 80px; height: 80px; }
+  .progress-circle svg { transform: rotate(-90deg); }
+  .progress-circle .pct { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 18px; font-weight: 700; color: var(--text); }
+
+  .factors-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .factor-tag { padding: 4px 10px; border-radius: 20px; font-size: 12px; background: var(--warning-light); color: #92400E; border: 1px solid #FDE68A; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+  .form-input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; color: var(--text); outline: none; background: white; }
+  .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,106,234,0.1); }
+  textarea.form-input { resize: vertical; min-height: 80px; }
+
+  .score-change { font-size: 12px; font-weight: 600; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+  .score-change.up { background: var(--accent-light); color: #059669; }
+  .score-change.down { background: var(--danger-light); color: #DC2626; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">КогниТест</div>
+        <div class="logo-sub">Портал врача</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Основное</div>
+    <div class="nav-item active" onclick="showScreen('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Дашборд
+    </div>
+    <div class="nav-item" onclick="showScreen('patients')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Пациенты
+      <span class="nav-badge">5</span>
+    </div>
+    <div class="nav-item" onclick="showScreen('results')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Результаты
+    </div>
+    <div class="nav-section">Инструменты</div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Тренировки
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Аналитика
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Выгрузки
+    </div>
+    <div class="nav-section">Настройки</div>
+    <div class="nav-item" onclick="showScreen('support')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Поддержка
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M5.34 5.34l-1.41-1.41M12 20v2M12 2v2"/></svg>
+      Настройки
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="doctor-card">
+      <div class="avatar">ИК</div>
+      <div class="doctor-info">
+        <div class="doctor-name">Иванова К.М.</div>
+        <div class="doctor-spec">Невролог</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN AREA -->
+<div class="main">
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="screen-dashboard" class="screen active">
+    <div class="topbar">
+      <div class="topbar-title">Дашборд</div>
+      <div class="topbar-right">
+        <select class="filter-select">
+          <option>Последние 30 дней</option>
+          <option>Последние 7 дней</option>
+          <option>Этот год</option>
+        </select>
+        <button class="btn btn-outline btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Экспорт
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="copyQR()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="3" y="16" width="5" height="5"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+          Мой QR-код
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Всего пациентов</span>
+            <div class="stat-icon" style="background:#EEF2FF"><svg viewBox="0 0 24 24" fill="none" stroke="#3B6AEA" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          </div>
+          <div class="stat-value">142</div>
+          <div class="stat-delta"><span class="up">+12</span> за период</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Пройдено тестов</span>
+            <div class="stat-icon" style="background:#ECFDF5"><svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          </div>
+          <div class="stat-value">189</div>
+          <div class="stat-delta"><span class="up">+24</span> за период</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Новые результаты</span>
+            <div class="stat-icon" style="background:#FFFBEB"><svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+          </div>
+          <div class="stat-value">5</div>
+          <div class="stat-delta">Ожидают просмотра</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Средний балл</span>
+            <div class="stat-icon" style="background:#FEF2F2"><svg viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          </div>
+          <div class="stat-value">71<span style="font-size:16px;color:#6B7280;font-weight:500">/100</span></div>
+          <div class="stat-delta"><span class="down">−3.2</span> vs прошлый период</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Cognitive domains -->
+        <div class="card">
+          <div class="card-title">Средние показатели по доменам</div>
+          <div class="domain-list">
+            <div class="domain-item">
+              <div class="domain-row"><span class="domain-name">Память</span><span class="domain-score">68/100</span></div>
+              <div class="domain-bar-bg"><div class="domain-bar bar-yellow" style="width:68%"></div></div>
+            </div>
+            <div class="domain-item">
+              <div class="domain-row"><span class="domain-name">Внимание</span><span class="domain-score">75/100</span></div>
+              <div class="domain-bar-bg"><div class="domain-bar bar-blue" style="width:75%"></div></div>
+            </div>
+            <div class="domain-item">
+              <div class="domain-row"><span class="domain-name">Исполнительные функции</span><span class="domain-score">62/100</span></div>
+              <div class="domain-bar-bg"><div class="domain-bar bar-red" style="width:62%"></div></div>
+            </div>
+            <div class="domain-item">
+              <div class="domain-row"><span class="domain-name">Речь и язык</span><span class="domain-score">82/100</span></div>
+              <div class="domain-bar-bg"><div class="domain-bar bar-green" style="width:82%"></div></div>
+            </div>
+            <div class="domain-item">
+              <div class="domain-row"><span class="domain-name">Ориентация</span><span class="domain-score">79/100</span></div>
+              <div class="domain-bar-bg"><div class="domain-bar bar-green" style="width:79%"></div></div>
+            </div>
+            <div class="domain-item">
+              <div class="domain-row"><span class="domain-name">Зрительно-пространств.</span><span class="domain-score">70/100</span></div>
+              <div class="domain-bar-bg"><div class="domain-bar bar-yellow" style="width:70%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distribution donut -->
+        <div class="card">
+          <div class="card-title">Распределение пациентов по результату</div>
+          <div class="donut-wrapper">
+            <svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">
+              <!-- High -->
+              <circle cx="60" cy="60" r="44" fill="none" stroke="#E5E7EB" stroke-width="18"/>
+              <!-- segments approximated -->
+              <circle cx="60" cy="60" r="44" fill="none" stroke="#10B981" stroke-width="18" stroke-dasharray="83 193" stroke-dashoffset="0"/>
+              <circle cx="60" cy="60" r="44" fill="none" stroke="#F59E0B" stroke-width="18" stroke-dasharray="96 180" stroke-dashoffset="-83"/>
+              <circle cx="60" cy="60" r="44" fill="none" stroke="#EF4444" stroke-width="18" stroke-dasharray="97 179" stroke-dashoffset="-179"/>
+              <text x="60" y="55" text-anchor="middle" font-size="16" font-weight="700" fill="#111827">142</text>
+              <text x="60" y="70" text-anchor="middle" font-size="10" fill="#6B7280">пациентов</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:#10B981"></div>
+                <span class="legend-label">Высокий</span>
+                <span class="legend-val" style="margin-left:12px">38</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:#F59E0B"></div>
+                <span class="legend-label">Средний</span>
+                <span class="legend-val" style="margin-left:12px">69</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:#EF4444"></div>
+                <span class="legend-label">Низкий</span>
+                <span class="legend-val" style="margin-left:12px">35</span>
+              </div>
+              <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border);">
+                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">Повторный тест</div>
+                <span class="badge badge-blue">47 пациентов</span>
+              </div>
+            </div>
+          </div>
+          <!-- Mini trend -->
+          <div style="margin-top:16px">
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">Динамика среднего балла (последние 6 мес.)</div>
+            <div style="display:flex;align-items:flex-end;gap:6px;height:40px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:28px;height:28px;background:#C7D7FA;border-radius:4px 4px 0 0;"></div>
+                <span style="font-size:10px;color:#9CA3AF">Янв</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:28px;height:24px;background:#C7D7FA;border-radius:4px 4px 0 0;"></div>
+                <span style="font-size:10px;color:#9CA3AF">Фев</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:28px;height:30px;background:#C7D7FA;border-radius:4px 4px 0 0;"></div>
+                <span style="font-size:10px;color:#9CA3AF">Мар</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:28px;height:26px;background:#C7D7FA;border-radius:4px 4px 0 0;"></div>
+                <span style="font-size:10px;color:#9CA3AF">Апр</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:28px;height:32px;background:#C7D7FA;border-radius:4px 4px 0 0;"></div>
+                <span style="font-size:10px;color:#9CA3AF">Май</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:28px;height:28px;background:#3B6AEA;border-radius:4px 4px 0 0;"></div>
+                <span style="font-size:10px;color:#9CA3AF">Июн</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent patients -->
+      <div class="card">
+        <div class="section-title">
+          Последние результаты
+          <a onclick="showScreen('patients')">Смотреть все →</a>
+        </div>
+        <table class="patient-table">
+          <thead>
+            <tr>
+              <th>Пациент</th>
+              <th>Дата</th>
+              <th>Статус</th>
+              <th>Результат</th>
+              <th>Ключевые отклонения</th>
+              <th>Тренировки</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr onclick="showScreen('results')">
+              <td><div class="patient-name">Смирнова А.В.</div><div class="patient-id">PT-0142</div></td>
+              <td style="color:var(--text-secondary)">Сегодня, 11:24</td>
+              <td><span class="badge badge-blue">Новый</span></td>
+              <td><span style="font-weight:700;color:#EF4444">54/100</span></td>
+              <td><span class="deviation-tag">Память</span><span class="deviation-tag">Исп. функции</span></td>
+              <td><span class="badge badge-green">Назначены</span></td>
+            </tr>
+            <tr onclick="showScreen('results')">
+              <td><div class="patient-name">Петров Д.Н.</div><div class="patient-id">PT-0141</div></td>
+              <td style="color:var(--text-secondary)">Вчера, 15:10</td>
+              <td><span class="badge badge-blue">Новый</span></td>
+              <td><span style="font-weight:700;color:#F59E0B">68/100</span></td>
+              <td><span class="deviation-tag">Внимание</span></td>
+              <td><span class="badge badge-green">Назначены</span></td>
+            </tr>
+            <tr>
+              <td><div class="patient-name">Козлова Е.С.</div><div class="patient-id">PT-0139</div></td>
+              <td style="color:var(--text-secondary)">17.06, 09:33</td>
+              <td><span class="badge badge-gray">Просмотрен</span></td>
+              <td><span style="font-weight:700;color:#10B981">84/100</span></td>
+              <td>—</td>
+              <td><span class="badge badge-green">Назначены</span></td>
+            </tr>
+            <tr>
+              <td><div class="patient-name">Новиков В.А.</div><div class="patient-id">PT-0138</div></td>
+              <td style="color:var(--text-secondary)">16.06, 14:22</td>
+              <td><span class="badge badge-gray">Просмотрен</span></td>
+              <td><span style="font-weight:700;color:#F59E0B">71/100</span></td>
+              <td><span class="deviation-tag">Память</span></td>
+              <td><span class="badge badge-green">Назначены</span></td>
+            </tr>
+            <tr>
+              <td><div class="patient-name">Фёдорова М.П.</div><div class="patient-id">PT-0136</div></td>
+              <td style="color:var(--text-secondary)">14.06, 18:05</td>
+              <td><span class="badge badge-gray">Просмотрен</span></td>
+              <td><span style="font-weight:700;color:#EF4444">49/100</span></td>
+              <td><span class="deviation-tag">Память</span><span class="deviation-tag">Речь</span><span class="deviation-tag">Ориент.</span></td>
+              <td><span class="badge badge-green">Назначены</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PATIENTS ============ -->
+  <div id="screen-patients" class="screen">
+    <div class="topbar">
+      <div class="topbar-title">Пациенты</div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Выгрузить CSV
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="filters-bar">
+        <div class="search-input" style="max-width:240px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Поиск по ФИО или ID...">
+        </div>
+        <select class="filter-select">
+          <option value="">Все даты</option>
+          <option>Сегодня</option>
+          <option>Последние 7 дней</option>
+          <option>Этот месяц</option>
+        </select>
+        <select class="filter-select">
+          <option value="">Все статусы</option>
+          <option>Новый</option>
+          <option>Просмотрен</option>
+        </select>
+        <select class="filter-select">
+          <option value="">Все уровни</option>
+          <option>Высокий (80+)</option>
+          <option>Средний (60–79)</option>
+          <option>Низкий (до 60)</option>
+        </select>
+        <select class="filter-select">
+          <option value="">Повторный тест</option>
+          <option>Есть повторный</option>
+          <option>Только первичный</option>
+        </select>
+        <select class="filter-select">
+          <option value="">Источник</option>
+          <option>QR-код</option>
+          <option>Ссылка</option>
+        </select>
+        <span class="filters-count">142 пациента</span>
+      </div>
+
+      <table class="full-table">
+        <thead>
+          <tr>
+            <th>Пациент / ID</th>
+            <th>Дата теста</th>
+            <th>Статус</th>
+            <th>Результат</th>
+            <th>Ключевые отклонения</th>
+            <th>Источник</th>
+            <th>Повторный тест</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="showScreen('results')">
+            <td><div class="patient-name">Смирнова А.В.</div><div class="patient-id">PT-0142</div></td>
+            <td style="color:var(--text-secondary)">18.06.2026<br><span style="font-size:11px">11:24</span></td>
+            <td><span class="badge badge-blue">Новый</span></td>
+            <td>
+              <div style="font-weight:700;font-size:17px;color:#EF4444">54</div>
+              <div style="font-size:11px;color:var(--text-secondary)">/100</div>
+            </td>
+            <td><span class="deviation-tag">Память</span><span class="deviation-tag">Исп. функции</span></td>
+            <td><span class="badge badge-gray">QR-код</span></td>
+            <td>
+              <div class="repeat-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.01"/></svg>
+                2 теста
+              </div>
+            </td>
+            <td><button class="btn btn-primary btn-sm">Открыть</button></td>
+          </tr>
+          <tr onclick="showScreen('results')">
+            <td><div class="patient-name">Петров Д.Н.</div><div class="patient-id">PT-0141</div></td>
+            <td style="color:var(--text-secondary)">17.06.2026<br><span style="font-size:11px">15:10</span></td>
+            <td><span class="badge badge-blue">Новый</span></td>
+            <td>
+              <div style="font-weight:700;font-size:17px;color:#F59E0B">68</div>
+              <div style="font-size:11px;color:var(--text-secondary)">/100</div>
+            </td>
+            <td><span class="deviation-tag">Внимание</span></td>
+            <td><span class="badge badge-gray">Ссылка</span></td>
+            <td><span style="color:var(--text-secondary);font-size:12px">—</span></td>
+            <td><button class="btn btn-primary btn-sm">Открыть</button></td>
+          </tr>
+          <tr>
+            <td><div class="patient-name">Козлова Е.С.</div><div class="patient-id">PT-0139</div></td>
+            <td style="color:var(--text-secondary)">17.06.2026<br><span style="font-size:11px">09:33</span></td>
+            <td><span class="badge badge-gray">Просмотрен</span></td>
+            <td>
+              <div style="font-weight:700;font-size:17px;color:#10B981">84</div>
+              <div style="font-size:11px;color:var(--text-secondary)">/100</div>
+            </td>
+            <td>—</td>
+            <td><span class="badge badge-gray">QR-код</span></td>
+            <td>
+              <div class="repeat-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.01"/></svg>
+                3 теста
+              </div>
+            </td>
+            <td><button class="btn btn-outline btn-sm">Открыть</button></td>
+          </tr>
+          <tr>
+            <td><div class="patient-name">Новиков В.А.</div><div class="patient-id">PT-0138</div></td>
+            <td style="color:var(--text-secondary)">16.06.2026<br><span style="font-size:11px">14:22</span></td>
+            <td><span class="badge badge-gray">Просмотрен</span></td>
+            <td>
+              <div style="font-weight:700;font-size:17px;color:#F59E0B">71</div>
+              <div style="font-size:11px;color:var(--text-secondary)">/100</div>
+            </td>
+            <td><span class="deviation-tag">Память</span></td>
+            <td><span class="badge badge-gray">Ссылка</span></td>
+            <td><span style="color:var(--text-secondary);font-size:12px">—</span></td>
+            <td><button class="btn btn-outline btn-sm">Открыть</button></td>
+          </tr>
+          <tr>
+            <td><div class="patient-name">Фёдорова М.П.</div><div class="patient-id">PT-0136</div></td>
+            <td style="color:var(--text-secondary)">14.06.2026<br><span style="font-size:11px">18:05</span></td>
+            <td><span class="badge badge-gray">Просмотрен</span></td>
+            <td>
+              <div style="font-weight:700;font-size:17px;color:#EF4444">49</div>
+              <div style="font-size:11px;color:var(--text-secondary)">/100</div>
+            </td>
+            <td><span class="deviation-tag">Память</span><span class="deviation-tag">Речь</span><span class="deviation-tag">Ориент.</span></td>
+            <td><span class="badge badge-gray">QR-код</span></td>
+            <td>
+              <div class="repeat-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.01"/></svg>
+                2 теста
+              </div>
+            </td>
+            <td><button class="btn btn-outline btn-sm">Открыть</button></td>
+          </tr>
+          <tr>
+            <td><div class="patient-name">Белов И.Р.</div><div class="patient-id">PT-0135</div></td>
+            <td style="color:var(--text-secondary)">13.06.2026<br><span style="font-size:11px">10:17</span></td>
+            <td><span class="badge badge-gray">Просмотрен</span></td>
+            <td>
+              <div style="font-weight:700;font-size:17px;color:#10B981">88</div>
+              <div style="font-size:11px;color:var(--text-secondary)">/100</div>
+            </td>
+            <td>—</td>
+            <td><span class="badge badge-gray">Ссылка</span></td>
+            <td><span style="color:var(--text-secondary);font-size:12px">—</span></td>
+            <td><button class="btn btn-outline btn-sm">Открыть</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:0 4px">
+        <span style="font-size:12.5px;color:var(--text-secondary)">Показано 6 из 142</span>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-outline btn-sm">← Назад</button>
+          <button class="btn btn-primary btn-sm">1</button>
+          <button class="btn btn-outline btn-sm">2</button>
+          <button class="btn btn-outline btn-sm">3</button>
+          <span style="padding:5px 8px;font-size:13px;color:var(--text-secondary)">...</span>
+          <button class="btn btn-outline btn-sm">24</button>
+          <button class="btn btn-outline btn-sm">Вперёд →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div id="screen-results" class="screen">
+    <div class="topbar">
+      <div class="topbar-title">
+        <span style="color:var(--text-secondary);font-weight:400;cursor:pointer" onclick="showScreen('patients')">Пациенты</span>
+        <span style="color:var(--text-secondary);font-weight:400"> / </span>
+        Смирнова А.В.
+      </div>
+      <div class="topbar-right">
+        <label class="compare-toggle" id="compareToggle">
+          <input type="checkbox" id="compareCheck" onchange="toggleCompare()">
+          Сравнить с первым тестом
+        </label>
+        <button class="btn btn-outline btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Выгрузить отчёт
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <!-- Patient + Score header -->
+      <div class="results-header">
+        <div class="patient-info-card">
+          <div class="pi-name">Смирнова Александра Витальевна</div>
+          <div class="pi-meta">
+            <div class="pi-meta-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Тест: <strong>18.06.2026</strong></div>
+            <div class="pi-meta-item">ID: <strong>PT-0142</strong></div>
+            <div class="pi-meta-item">Возраст: <strong>67 лет</strong></div>
+            <div class="pi-meta-item">Образование: <strong>Высшее</strong></div>
+            <div class="pi-meta-item">Источник: <strong>QR-код</strong></div>
+            <div class="pi-meta-item" style="color:#3B6AEA">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.01"/></svg>
+              <strong>2 теста</strong> (первый: 14.03.2026)
+            </div>
+          </div>
+        </div>
+        <div class="score-card">
+          <div class="score-label">Общий балл</div>
+          <div class="score-big" style="color:#EF4444">54<span class="score-max">/100</span></div>
+          <div style="margin-top:8px"><span class="badge badge-red">Низкий</span></div>
+          <div class="score-change down" style="margin-top:8px;display:inline-block">↓ −8 vs 1-й тест</div>
+        </div>
+        <div class="score-card" style="min-width:130px">
+          <div class="score-label">Время</div>
+          <div class="score-big" style="font-size:32px;color:var(--text)">18:42</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">мин:сек</div>
+          <div class="score-change down" style="margin-top:8px;display:inline-block">↑ +3 мин</div>
+        </div>
+      </div>
+
+      <!-- Tabs for test selection when compare is on -->
+      <div id="compareHeader" style="display:none;margin-bottom:16px">
+        <div class="tabs">
+          <div class="tab active">Тест №2 — 18.06.2026</div>
+          <div class="tab">Тест №1 — 14.03.2026</div>
+          <div class="tab">Сравнение</div>
+        </div>
+      </div>
+
+      <div class="results-grid">
+        <!-- Domains detail -->
+        <div class="card">
+          <div class="card-title">Результаты по доменам</div>
+          <div class="domain-detail-list">
+            <div class="domain-detail" style="background:#FEF2F2;border-color:#FECACA">
+              <div class="domain-detail-row">
+                <span class="domain-detail-name">Память</span>
+                <span class="domain-detail-score" style="color:#EF4444">42<span style="font-size:13px;color:#9CA3AF;font-weight:400">/100</span>
+                  <span class="score-change down">↓ −12</span>
+                </span>
+              </div>
+              <div class="domain-detail-bar-bg"><div class="domain-detail-bar" style="width:42%;background:#EF4444"></div></div>
+              <div style="font-size:11px;color:#DC2626;margin-top:4px">⚠ Значительное отклонение</div>
+            </div>
+            <div class="domain-detail" style="background:#FFFBEB;border-color:#FDE68A">
+              <div class="domain-detail-row">
+                <span class="domain-detail-name">Внимание</span>
+                <span class="domain-detail-score" style="color:#D97706">61<span style="font-size:13px;color:#9CA3AF;font-weight:400">/100</span>
+                  <span class="score-change down">↓ −6</span>
+                </span>
+              </div>
+              <div class="domain-detail-bar-bg"><div class="domain-detail-bar" style="width:61%;background:#F59E0B"></div></div>
+            </div>
+            <div class="domain-detail" style="background:#FEF2F2;border-color:#FECACA">
+              <div class="domain-detail-row">
+                <span class="domain-detail-name">Исполнительные функции</span>
+                <span class="domain-detail-score" style="color:#EF4444">48<span style="font-size:13px;color:#9CA3AF;font-weight:400">/100</span>
+                  <span class="score-change down">↓ −9</span>
+                </span>
+              </div>
+              <div class="domain-detail-bar-bg"><div class="domain-detail-bar" style="width:48%;background:#EF4444"></div></div>
+              <div style="font-size:11px;color:#DC2626;margin-top:4px">⚠ Значительное отклонение</div>
+            </div>
+            <div class="domain-detail" style="background:#ECFDF5;border-color:#A7F3D0">
+              <div class="domain-detail-row">
+                <span class="domain-detail-name">Речь и язык</span>
+                <span class="domain-detail-score" style="color:#059669">76<span style="font-size:13px;color:#9CA3AF;font-weight:400">/100</span>
+                  <span class="score-change up">↑ +4</span>
+                </span>
+              </div>
+              <div class="domain-detail-bar-bg"><div class="domain-detail-bar" style="width:76%;background:#10B981"></div></div>
+            </div>
+            <div class="domain-detail">
+              <div class="domain-detail-row">
+                <span class="domain-detail-name">Ориентация</span>
+                <span class="domain-detail-score" style="color:#D97706">66<span style="font-size:13px;color:#9CA3AF;font-weight:400">/100</span></span>
+              </div>
+              <div class="domain-detail-bar-bg"><div class="domain-detail-bar" style="width:66%;background:#F59E0B"></div></div>
+            </div>
+            <div class="domain-detail">
+              <div class="domain-detail-row">
+                <span class="domain-detail-name">Зрительно-пространств.</span>
+                <span class="domain-detail-score" style="color:#D97706">58<span style="font-size:13px;color:#9CA3AF;font-weight:400">/100</span></span>
+              </div>
+              <div class="domain-detail-bar-bg"><div class="domain-detail-bar" style="width:58%;background:#F59E0B"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <!-- Strengths & Weaknesses -->
+          <div class="strengths-grid" style="margin-bottom:14px">
+            <div class="strength-card good">
+              <div class="strength-card-title">✓ Сильные зоны</div>
+              <span class="strength-tag">Речь и язык</span>
+              <span class="strength-tag">Называние</span>
+              <span class="strength-tag">Понимание</span>
+            </div>
+            <div class="strength-card bad">
+              <div class="strength-card-title">✗ Слабые зоны</div>
+              <span class="strength-tag">Память</span>
+              <span class="strength-tag">Планирование</span>
+              <span class="strength-tag">Торможение</span>
+              <span class="strength-tag">Концентрация</span>
+            </div>
+          </div>
+
+          <!-- Factors -->
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title">Факторы, влиявшие на результат</div>
+            <div class="factors-list">
+              <span class="factor-tag">⚡ Тревожность (высокая)</span>
+              <span class="factor-tag">😴 Нарушение сна</span>
+              <span class="factor-tag">💊 Принимает гипотензивные</span>
+              <span class="factor-tag">🫀 АГ в анамнезе</span>
+              <span class="factor-tag">👤 Возраст 67+</span>
+            </div>
+          </div>
+
+          <!-- Assigned trainings -->
+          <div class="card">
+            <div class="card-title">Назначенные тренировки</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--primary-light);border-radius:8px;border:1px solid #C7D7FA">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--primary)">Тренировка памяти — уровень 1</div>
+                  <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px">15 мин/день · 3 раза в неделю</div>
+                </div>
+                <span class="badge badge-blue">Активна</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--primary-light);border-radius:8px;border:1px solid #C7D7FA">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--primary)">Концентрация и внимание</div>
+                  <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px">10 мин/день · ежедневно</div>
+                </div>
+                <span class="badge badge-blue">Активна</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--text)">Планирование и решение задач</div>
+                  <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px">20 мин/день · 2 раза в неделю</div>
+                </div>
+                <span class="badge badge-gray">Ожидает</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interpretation -->
+      <div class="interp-card">
+        <div class="interp-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Текстовая интерпретация
+        </div>
+        <div class="interp-text">
+          Пациентка демонстрирует когнитивный профиль, характерный для умеренного когнитивного расстройства с преимущественным вовлечением эпизодической памяти и управляющих функций. Отмечается нарастание дефицита по сравнению с первичным тестированием (−8 баллов за 3 месяца). Наиболее выражено снижение в доменах: <strong>память (42/100)</strong> и <strong>исполнительные функции (48/100)</strong>. Речевые функции сохранны и являются компенсаторным ресурсом. Скорость выполнения заданий замедлена, что соответствует возрастным и тревожно-депрессивным влияниям. Профиль соответствует паттерну, характерному для начальной стадии нейродегенеративного процесса.
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="interp-card">
+        <div class="interp-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Рекомендации
+        </div>
+        <ul class="rec-list">
+          <li>Направить пациентку на консультацию к нейропсихологу для расширенного нейропсихологического обследования.</li>
+          <li>Рассмотреть нейровизуализацию (МРТ головного мозга) с целью исключения структурных изменений.</li>
+          <li>Коррекция нарушений сна — консультация сомнолога или назначение терапии.</li>
+          <li>Продолжить когнитивные тренировки по программе, назначенной системой (память + внимание).</li>
+          <li>Повторное тестирование через 2 месяца для мониторинга динамики.</li>
+          <li>Оценить уровень тревожности (шкала HAMA) и при необходимости скорректировать терапию.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SUPPORT ============ -->
+  <div id="screen-support" class="screen">
+    <div class="topbar">
+      <div class="topbar-title">Поддержка и обратная связь</div>
+    </div>
+    <div class="content">
+      <!-- Actions grid -->
+      <div class="support-grid">
+        <div class="support-action-card">
+          <div class="support-icon" style="background:#EEF2FF">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3B6AEA" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div>
+            <div class="support-action-title">Написать в поддержку</div>
+            <div class="support-action-desc">Опишите проблему — ответим в течение рабочего дня. Доступны чат и электронная почта.</div>
+          </div>
+        </div>
+        <div class="support-action-card">
+          <div class="support-icon" style="background:#FEF2F2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="support-action-title">Сообщить об ошибке</div>
+            <div class="support-action-desc">Нашли баг или некорректный результат? Помогите нам стать лучше — отправьте отчёт.</div>
+          </div>
+        </div>
+        <div class="support-action-card">
+          <div class="support-icon" style="background:#ECFDF5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div>
+            <div class="support-action-title">Предложить улучшение</div>
+            <div class="support-action-desc">Идеи по улучшению платформы, новые функции или изменения интерфейса — мы всё читаем.</div>
+          </div>
+        </div>
+        <div class="support-action-card" onclick="document.getElementById('ratingSection').scrollIntoView({behavior:'smooth'})">
+          <div class="support-icon" style="background:#FFFBEB">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div>
+            <div class="support-action-title">Оставить оценку</div>
+            <div class="support-action-desc">Расскажите, насколько удобен сервис. Ваша оценка влияет на развитие продукта.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <!-- Contact form -->
+        <div class="card">
+          <div class="card-title">Написать сообщение</div>
+          <div class="form-group">
+            <label class="form-label">Тема</label>
+            <select class="form-input">
+              <option>Техническая проблема</option>
+              <option>Вопрос по результатам</option>
+              <option>Вопрос по комиссии</option>
+              <option>Предложение</option>
+              <option>Другое</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Сообщение</label>
+            <textarea class="form-input" placeholder="Опишите вашу проблему или вопрос..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Прикрепить файл (необязательно)</label>
+            <input type="file" class="form-input" style="padding:6px">
+          </div>
+          <button class="btn btn-primary" style="width:100%">Отправить сообщение</button>
+        </div>
+
+        <!-- Rating -->
+        <div>
+          <div class="rating-widget" id="ratingSection">
+            <div class="card-title">Оцените сервис</div>
+            <div class="rating-label">Насколько удобен интерфейс?</div>
+            <div class="stars">
+              <span class="star" onclick="setRating(this,1)">⭐</span>
+              <span class="star" onclick="setRating(this,2)">⭐</span>
+              <span class="star active" onclick="setRating(this,3)">⭐</span>
+              <span class="star" onclick="setRating(this,4)">⭐</span>
+              <span class="star" onclick="setRating(this,5)">⭐</span>
+            </div>
+            <div class="form-group" style="margin-top:8px">
+              <textarea class="form-input" placeholder="Комментарий (необязательно)..." style="min-height:60px"></textarea>
+            </div>
+            <button class="btn btn-outline btn-sm">Отправить оценку</button>
+          </div>
+
+          <!-- Quick info -->
+          <div class="card">
+            <div class="card-title">Контакты</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span style="color:var(--primary)">support@kognitest.ru</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.42 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l1.02-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>8 (800) 555-00-42 (бесплатно)</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span style="color:var(--text-secondary)">Пн–Пт, 9:00–18:00 МСК</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px">Частые вопросы</div>
+        <div class="faq-list">
+          <div class="faq-item open">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              Как работает QR-код и ссылка для пациентов?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">Каждому врачу присваивается уникальный QR-код и ссылка. Когда пациент сканирует QR или переходит по ссылке, он попадает на страницу тестирования. После прохождения результат автоматически появляется в вашем кабинете в разделе «Пациенты».</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              Где смотреть результаты пациента?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">Результаты доступны в разделе «Пациенты» → нажмите «Открыть» рядом с нужным пациентом. Там вы найдёте детальную аналитику по всем когнитивным доменам, интерпретацию и рекомендации. Новые результаты помечаются синим бейджем «Новый».</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              Как начисляется комиссия?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">Комиссия начисляется за каждого пациента, прошедшего тест по вашей ссылке или QR-коду. Подробный отчёт по начислениям доступен в разделе «Аналитика». Выплаты производятся ежемесячно на указанные реквизиты. По вопросам комиссий — напишите в поддержку.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              Как выгрузить отчёт по пациенту?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">Откройте карточку пациента (раздел «Пациенты» → «Открыть»). В верхнем правом углу нажмите кнопку «Выгрузить отчёт» — вы получите PDF с полными результатами тестирования. Также можно выгрузить всех пациентов в формате CSV из раздела «Пациенты».</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              Как пациент получает доступ к когнитивным тренировкам?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="faq-a">После прохождения теста система автоматически формирует персональную программу тренировок на основе результатов. Пациент получает доступ через приложение или веб-версию. Назначенные тренировки видны в карточке пациента в разделе «Результаты».</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<!-- Floating support button (visible on all screens) -->
+<div class="float-support" onclick="showScreen('support')" title="Поддержка">
+  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+</div>
+
+<script>
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const map = { dashboard: 0, patients: 1, results: 2, support: 7 };
+  const items = document.querySelectorAll('.nav-item');
+  // Highlight correct nav item
+  const navMap = { dashboard: 'Дашборд', patients: 'Пациенты', results: 'Результаты', support: 'Поддержка' };
+  items.forEach(item => {
+    if (item.textContent.trim().startsWith(navMap[name])) {
+      item.classList.add('active');
+    }
+  });
+}
+
+function toggleFaq(el) {
+  el.closest('.faq-item').classList.toggle('open');
+}
+
+function toggleCompare() {
+  const ch = document.getElementById('compareCheck');
+  document.getElementById('compareHeader').style.display = ch.checked ? 'block' : 'none';
+}
+
+function copyQR() {
+  alert('QR-код скопирован в буфер обмена!\n\nСсылка: https://kognitest.ru/t/dr-ivanova-km');
+}
+
+function setRating(el, val) {
+  const stars = el.parentElement.querySelectorAll('.star');
+  stars.forEach((s, i) => { s.classList.toggle('active', i < val); });
+}
+</script>
+</body>
+</html>
